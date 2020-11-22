@@ -1,0 +1,115 @@
+version: '3.7'
+
+volumes:
+  nomad_auto_unlim_parser_postgres_data:
+    external: true
+  nomad_auto_unlim_parser_postgres_data_backups:
+    external: true
+  nomad_auto_unlim_parser_redis:
+    external: true
+
+# Here some extensions
+x-django_base: &django_base
+  build:
+    context: .
+    dockerfile: ./compose/test/django/Dockerfile
+  image: "${CI_REGISTRY}/${CI_REGISTRY_USER}/veyron_kolesa/test_django:${CI_COMMIT_SHA}"
+  depends_on:
+    - postgres
+    - redis
+  env_file:
+    - ./.envs/.test/.django
+    - ./.envs/.test/.postgres
+  command: /start
+  networks:
+    - db
+    - masternet
+    - broker
+
+x-django_deploy_base: &django_deploy_base
+  placement:
+    constraints: [node.hostname == backtest]
+
+x-django_deploy_replicas: &django_deploy_replicas
+  replicas: 2
+
+services:
+  django:
+    <<: *django_base
+    deploy:
+      <<: *django_deploy_base
+      <<: *django_deploy_replicas
+      labels:
+        - "traefik.enable=true"
+        - "traefik.port=5000"
+        - "traefik.docker.network=masternet"
+        - "traefik.frontend.rule=Host:garage.test.auto-nomad.kz"
+
+  postgres:
+    build:
+      context: .
+      dockerfile: ./compose/test/postgres/Dockerfile
+    image: "${CI_REGISTRY}/${CI_REGISTRY_USER}/veyron_kolesa/test_postgres:${CI_COMMIT_SHA}"
+    volumes:
+      - nomad_auto_unlim_parser_postgres_data:/var/lib/postgresql/data
+      - nomad_auto_unlim_parser_postgres_data_backups:/backups
+    env_file:
+      - ./.envs/.test/.postgres
+    networks:
+      - db
+    deploy:
+      <<: *django_deploy_base
+
+  mailhog:
+    image: mailhog/mailhog:v1.0.0
+    networks:
+      - masternet
+    deploy:
+      labels:
+        - "traefik.enable=true"
+        - "traefik.port=8025"
+        - "traefik.docker.network=masternet"
+        - "traefik.frontend.rule=Host:mailhog.garage.test.auto-nomad.kz"
+
+  redis:
+    image: redis:3.2
+    command: redis-server --appendonly yes
+    volumes:
+      - nomad_auto_unlim_parser_redis:/data
+    networks:
+      - broker
+    deploy:
+      <<: *django_deploy_base
+
+  celeryworker:
+    <<: *django_base
+    deploy:
+      <<: *django_deploy_base
+    command: /start-celeryworker
+
+  celerybeat:
+    <<: *django_base
+    deploy:
+      <<: *django_deploy_base
+    command: /start-celerybeat
+
+  flower:
+    <<: *django_base
+    deploy:
+      <<: *django_deploy_base
+      labels:
+        - "traefik.enable=true"
+        - "traefik.port=5555"
+        - "traefik.docker.network=masternet"
+        - "traefik.frontend.rule=Host:flower.garage.test.auto-nomad.kz"
+    command: /start-flower
+
+networks:
+  db:
+    driver: overlay
+    attachable: true
+  masternet:
+    external: true
+  broker:
+    driver: overlay
+    attachable: true

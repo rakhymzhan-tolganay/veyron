@@ -1,0 +1,11 @@
+[
+  {
+    "model": "microservices.service",
+    "pk": 1,
+    "fields": {
+      "name": "caps",
+      "url": "http://caps:8000",
+      "host": "caps"
+    }
+  }
+]

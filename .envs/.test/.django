@@ -1,0 +1,59 @@
+# General
+# ------------------------------------------------------------------------------
+# DJANGO_READ_DOT_ENV_FILE=True
+USE_DOCKER=yes
+IPYTHONDIR=/app/.ipython
+DJANGO_SETTINGS_MODULE=config.settings.test
+DJANGO_SECRET_KEY=KcBTv0iP7KmzU4ej4mvTZBRiBqS72zED3u4ALK5Z3H8J89sVG3mBQkX7s5pTP4AA
+DJANGO_ADMIN_URL=8Pu201KSanEtSbMLIPKuR43uSs8TbEUI/
+DJANGO_ALLOWED_HOSTS=.auto-nomad.kz,garage
+MODE=test
+TRAEFIK_URL=192.168.100.72
+
+# Security
+# ------------------------------------------------------------------------------
+# TIP: better off using DNS, however, redirect is OK too
+# DJANGO_SECURE_SSL_REDIRECT=False
+
+# Email
+# ------------------------------------------------------------------------------
+MAILGUN_API_KEY=
+DJANGO_SERVER_EMAIL=
+MAILGUN_DOMAIN=
+
+# django-allauth
+# ------------------------------------------------------------------------------
+DJANGO_ACCOUNT_ALLOW_REGISTRATION=True
+
+# Gunicorn
+# ------------------------------------------------------------------------------
+WEB_CONCURRENCY=4
+
+# Sentry
+# ------------------------------------------------------------------------------
+SENTRY_DSN=http://597bf8b898be11e98d600242ac170004@192.168.100.73:9000/2
+
+
+# Redis
+# ------------------------------------------------------------------------------
+REDIS_URL=redis://redis:6379/0
+
+# Celery
+# ------------------------------------------------------------------------------
+
+# Flower
+CELERY_FLOWER_USER=debug
+CELERY_FLOWER_PASSWORD=debug
+
+# Logstash
+# ------------------------------------------------------------------------------
+LOGSTASH_HOST=192.168.100.73
+
+# AWS
+# ------------------------------------------------------------------------------
+DJANGO_AWS_SECRET_ACCESS_KEY=kbdj5WlRy7LsyIedmhr6MfuRExhoph49yt1O9BKQ
+DJANGO_AWS_ACCESS_KEY_ID=AKIAU277WP4PVQDO6QWL
+DJANGO_AWS_STORAGE_BUCKET_NAME=auto-nomad
+AWS_DEFAULT_ACL=public-read
+
+# Proxy
